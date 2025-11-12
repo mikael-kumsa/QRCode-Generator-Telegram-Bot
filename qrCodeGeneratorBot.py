@@ -10,7 +10,7 @@ from telegram.ext import (
     filters,
 )
 from qr_generator import generateQR
-
+import random
 # Load environment variables
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -30,11 +30,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def main_action(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Receive user's content and send back the qrcode."""
     content = update.message.text
-    path = generateQR(content)
+    user = update.message.from_user
+    user_name = user['username']
+    file_suffix = random.randint(1, 900)
+    path = user_name + str(file_suffix) + ".png"
+    qr = generateQR(content, path)
     # Send a personalized message
     await update.message.reply_text(f"Generating...")
     # Send an image (URL or local file)
-    image_url = path
+    image_url = qr
     await update.message.reply_photo(photo=image_url, caption="Here's your QR code")
     # End conversation
     return ConversationHandler.END
